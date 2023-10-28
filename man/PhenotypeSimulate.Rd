@@ -12,13 +12,11 @@ PheSimulator(
   genoMethod = "SNPfrequency",
   SNPfrequency = NULL,
   cSNP = 0.01,
-  genVar = NULL,
-  noiseVar = Null,
   pcorr = NULL,
   pgenVar = 0.6,
   h2s = NULL,
   theta = 0.8,
-  pTraits = 1,
+  weight = 1,
   Haplotype,
   ...
 )
@@ -41,16 +39,12 @@ or "Haplotype". Default is "SNPfrequency".}
 \item{cSNP}{Proportion [double] of causal SNPs; used as genetic variant effects.
 default is 0.01.}
 
-\item{genVar}{[K x K] matrix of genetic covariance between any pair of phenotypes.}
-
-\item{noiseVar}{[K x K] matrix of noise covaraince between any pair od phenotypes.}
-
 \item{pcorr}{[K x K] matrix of correlation [double] between phenotypes. If input
 is a single value which means the correlation between any pair of
 phenotypes are same. Default is 0.5.}
 
-\item{pgenVar}{Proportion of phenotype correlation influenced by genetic
-variants. Default is 0.6. It is used with \code{pcorr} parameters.}
+\item{pgenVar}{[K x K] matrix. Proportion of phenotype correlation influenced 
+by genetic variants. Default is 0.6. It is used with \code{pcorr} parameters.}
 
 \item{h2s}{K by 1 vector of genomic heritability of different phenotypes.
 Each element means the proportion of variance of a phenotype that can be
@@ -58,12 +52,13 @@ explained by a linear regression on a set of variants. Default is 0.5.}
 
 \item{theta}{Proportion [double] of variance of shared genetic variant effects.}
 
-\item{pTraits}{proportion [double] of traits which are correlated to each other.
-Allows to simulate for instance different levels of pleiotropy. Using
-ceiling(K*pTraits) as the number of phenotypes correlated to each other.}
+\item{weight}{[NrSNP x NrSNP] diagonal matrix of the weight which is 
+assigned to the variants. Default is 1.}
 
 \item{Haplotype}{Haplotype pool (two objects, first is the hoplotypes,
 second object is the SNP information)}
+
+\item{\dots}{Arguments passed to the internal function.}
 }
 \value{
 Named list of i) the final simulated phenotype components
@@ -76,7 +71,7 @@ Phenotypes are modeled under a linear additive model where Y = GB + E,
 GB the genetic variant effects, E is noise term.
 }
 \examples{
-K <- 5; N<- c(100,200,300,150,200); M<-160; Ns<-100
-
-
+K <- 5; N<- c(100,200,300,150,200); Ns<-100; NrSNP=1000
+h2s <- rep(0.6,K); pcorr <- 0.5
+out <- PheSimulator(K, N, NrSNP, Ns, pcorr=pcorr, h2s=h2s)
 }

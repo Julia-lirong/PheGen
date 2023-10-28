@@ -32,10 +32,10 @@ before standardisation. If genotypes contain missing values and impute is set
 to FALSE, \code{standardiseGenotypes} will return an error.
 }
 \examples{
-geno <- simulateGeno(N=10, NrSNP=100, frequency= c(0.3,0.5))$genotypes
-allelefreq <- getmaf(geno)
-geno <- simulateGeno(N=10, NrSNP=100, frequency= c(0.3,0.5))$genotypes
-geno_sd <- standardiseGeno(geno)
+#geno <- simulateGeno(N=10, NrSNP=100, frequency= c(0.3,0.5))$genotypes
+#allelefreq <- getmaf(geno)
+#geno <- simulateGeno(N=10, NrSNP=100, frequency= c(0.3,0.5))$genotypes
+#geno_sd <- standardiseGeno(geno)
 }
 \references{
 Yang, J., Lee, S.H., Goddard, M.E., Visscher, P.M. (2011) GCTA:

@@ -63,31 +63,30 @@ addNonNulls <- function(compList) {
 #' @rdname Utilize
 #' @param x The number [integer] of observations to simulate.
 #' @param dist Name of distribution [string] from which the observations are
-#' drawn. 'norm' is the normal distribution, 'unif' the uniform distribution
-#' 'bin' the binomial distribution, "cat_norm" samples categorical variables
-#' according to a normal distribution and "cat_unif"
-#' according to a uniform distribution. For "cat_norm", length(category)/2 is
-#' used mean for the normal distribution unless
-#' specified otherwise.
+#'   drawn. 'norm' is the normal distribution, 'unif' the uniform distribution
+#'   'bin' the binomial distribution, "cat_norm" samples categorical variables
+#'   according to a normal distribution and "cat_unif" 
+#'   according to a uniform distribution. For "cat_norm", length(category)/2 is
+#'   used mean for the normal distribution unless specified otherwise.
 #' @param m Mean of the normal distribution [double]/the mean between min
-#' and max for the uniform distribution [double]/
-#' the rank of the category to be used as mean for "cat_norm" [integer].
+#'   and max for the uniform distribution [double]/
+#'   the rank of the category to be used as mean for "cat_norm" [integer].
 #' @param std Standard deviation of the normal distribution or the distance
-#' of min/max from the mean for the uniform distribution [double].
+#'   of min/max from the mean for the uniform distribution [double].
 #' @param categories Number of categories [integer] for simulating categorical
-#' variables (for distr="cat_norm" or "cat_unif").
+#'   variables (for distr="cat_norm" or "cat_unif").
 #' @param prob Probability [double] of success for each trial
-#' (for distr="bin").
+#'   (for distr="bin").
 #' @return Numeric vector of length [x] with the sampled values
 #' @seealso \code{\link{runif}}, \code{\link{rnorm}}, \code{\link{rbinom}} for
-#' documentation of the underlying distributions.
-#' @export
+#'   documentation of the underlying distributions.
+#' @import stats
 #' @examples
-#' normal <- simulateDist(x=10, dist="norm", m=2, std=4)
-#' cat_normal <- simulateDist(x=10, dist="cat_norm", categories=5)
-#' cat_uniform <- simulateDist(x=10, dist="cat_unif", categories=5)
-#' uniform <- simulateDist(x=10, dist="unif", m=4, std=1)
-#' binomial <- simulateDist(x=10, dist="bin", prob=0.4)
+#' #normal <- simulateDist(x=10, dist="norm", m=2, std=4)
+#' #cat_normal <- simulateDist(x=10, dist="cat_norm", categories=5)
+#' #cat_uniform <- simulateDist(x=10, dist="cat_unif", categories=5)
+#' #uniform <- simulateDist(x=10, dist="unif", m=4, std=1)
+#' #binomial <- simulateDist(x=10, dist="bin", prob=0.4)
 simulateDist <- function(x,
                          dist=c("unif", "norm", "bin", "cat_norm", "cat_unif"),
                          m=NULL, std=1, categories=NULL, prob=NULL) {
@@ -179,54 +178,6 @@ simulateDist <- function(x,
 
 
 
-#####################
-#' Compute expected genotypes from genotype probabilities.
-#'
-#' Convert genotypes encoded as triplets of probablities (p(AA), p(Aa), p(aa))
-#' into their expected genotype frequencies by 0*p(AA) + p(Aa) + 2p(aa).
-#' @rdname Utilize
-#' @param probGeno Vector [numeric] with genotype probabilites; has to be a
-#' multiple of 3.
-#' @return Numeric vector of length [length(probGeno)/3] with the expected
-#' genotype value per individual.
-#' @examples
-#' nrSamples <- 10
-#' # Construct genotype probability vector (usually from external input)
-#' # First, assign zero probabilty of AA, Aa and aa for all samples
-#' genotype_prob <- rep(0, 3*nrSamples)
-#' # Second, for each sample draw one of 0,1,2 (corresponding to AA, Aa and aa)
-#' genotype_prob[seq(1, nrSamples*3, 3) + sample(0:2, 10, replace=TRUE)] <- 1
-#' genotype_exp <- probGen2expGen(genotype_prob)
-probGen2expGen <- function(probGeno) {
-  if (is.list(probGeno) || !is.vector(probGeno, mode="numeric")) {
-    stop("probGen2expGen takes a vector of genotype probabilities as input,
-             but ",  typeof(probGeno), " provided.")
-  }
-  if( length(probGeno) %% 3 != 0) {
-    stop("Length of genotype probabilty vector (",  length(probGeno),
-         ") is not a multiple of three")
-  }
-  if( any(is.na(probGeno))) {
-    stop("Samples need to be fully genotyped, but missing genotype data
-             detected. Consider imputing missing data, or excluding missing
-             genotypes")
-  }
-  multiples <- seq(1, length(probGeno), 3)
-  testProb <- zoo::rollapply(unlist(probGeno), 3, by = 3, sum,
-                             partial = FALSE)
-  if (any(testProb != 1)) {
-    stop("Genotype probabilities do not sum to 1")
-  }
-  probGeno[multiples] <- 0
-  probGeno[(multiples + 2)] <- 2 *  probGeno[(multiples + 2)]
-  expGeno <- zoo::rollapply(unlist(probGeno), 3, by = 3, sum,
-                            partial = FALSE)
-  return(expGeno )
-}
-
-
-
-
 ######################
 #' Rewrite expected genotypes into genotype probabilities.
 #'
@@ -236,12 +187,12 @@ probGen2expGen <- function(probGeno) {
 #' @rdname Utilize
 #' @param geno Vector [numeric] with genotypes
 #' @return Numeric vector of length [length(geno)*3] with the genotype encoded
-#' as probabbilities (p(AA), p(Aa), p(aa)).
+#'   as probabbilities (p(AA), p(Aa), p(aa)).
 #' @examples
-#' nrSamples <- 10
+#' #nrSamples <- 10
 #' # Simulate binomial SNP with 0.2 allele frequency
-#' geno <- rbinom(nrSamples, 2, p=0.2)
-#' geno_prob<- expGen2probGen(geno)
+#' #geno <- rbinom(nrSamples, 2, p=0.2)
+#' #geno_prob<- expGen2probGen(geno)
 expGen2probGen <- function(geno) {
   if (is.list(geno)) {
     stop("expGen2probGen takes a vector of genotypes as input,

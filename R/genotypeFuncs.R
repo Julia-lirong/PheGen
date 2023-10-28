@@ -21,6 +21,8 @@
 #' @return Named list with [N x NrSNP] matrix of simulated genotypes
 #'   (genotypes), their SNP frequencies (freq), a vector of sample IDs
 #'   (id_samples) and a vector of SNP IDs (id_snps).
+#' @import stats
+#' @importFrom utils data
 #' @export
 #' @examples
 #' data(frequencies)
@@ -33,8 +35,8 @@ simulateGeno <- function(N, NrSNP = NULL,
   if (is.null(SNPfrequency)) {
     # vmessage(paste0("Using the default frequencies data"))
     data(frequencies, package = "PheGen")
-    SNPfrequency <- frequencies$MAF
   }
+  SNPfrequency <- frequencies$MAF
   samples <- paste(sampleID, 1:N, sep = "")
   snps <- paste(snpID, 1:NrSNP, sep = "")
   # vmessage(c("Simulate", NrSNP, "SNPs for", N, "individuals"), verbose = verbose)
@@ -61,11 +63,11 @@ simulateGeno <- function(N, NrSNP = NULL,
 #' @rdname GenotypeSimulate
 #' @param Haplotype Haplotype pool (two objects, first is the hoplotypes,
 #'   second object is the SNP information)
-#'
+#' @importFrom utils data
 #' @export
 #'
 #' @examples
-#' gene <- simulateHap(N=100)
+#' gene <- simulateHap(N=100, NrSNP=20)
 
 simulateHap <- function(N, NrSNP,
                         Haplotype = NULL,
@@ -74,15 +76,16 @@ simulateHap <- function(N, NrSNP,
     # vmessage(paste0("Using the default hoplotype data"))
     data(haplotypes, package = "PheGen")
   }
-  data <- haplotypes$Haplotype
-  IDX.Marker <- sample(1:ncol(data), NrSNP, replace = TRUE)
-  H1 <- sample(1:nrow(data), N, replace = TRUE)
-  H2 <- sample(1:nrow(data), N, replace = TRUE)
-  gene <- Haplotype[H1, IDX.Marker] + Haplotype[H2, IDX.Marker]
+  Hap <- haplotypes$Haplotype
+  IDX.Marker <- sample(1:ncol(Hap), NrSNP, replace = TRUE)
+  H1 <- sample(1:nrow(Hap), N, replace = TRUE)
+  H2 <- sample(1:nrow(Hap), N, replace = TRUE)
+  gene <- Hap[H1, IDX.Marker] + Hap[H2, IDX.Marker]
+  freq = colMeans(gene)/2
   if (is.standardise) {
     gene <- standardiseGeno(geno = gene, ...)
   }
-  SNPInfo <- data.frame(SNP = c(1:NrSNP), FREQ1 = colMeans(gene)/2)
+  SNPInfo <- data.frame(SNP = c(1:NrSNP), FREQ1 = freq)
 
   return(list(genotypes = gene, SNPInfo = SNPInfo))
 
@@ -100,7 +103,7 @@ simulateHap <- function(N, NrSNP,
 #'   will be the same as the length of the whole region, so there will
 #'   no random selection of subregions. This parameter is used in the gene-based
 #'   assocaition.
-#'
+#' @importFrom utils data
 #' @export
 #'
 #' @examples
@@ -113,9 +116,9 @@ simulateGeneHap <- function(N, Haplotype = NULL,
     # vmessage(paste0("Using the default hoplotype data"))
     data(haplotypes, package = "PheGen")
   }
-  data <- haplotypes
-  Haplotype <- data$Haplotype
-  SNPInfo <- data$SNPInfo
+  Hap <- haplotypes
+  Haplotype <- Hap$Haplotype
+  SNPInfo <- Hap$SNPInfo
   if (is.null(SubRegion.Length)) {
     stop("SubRegion.Length is a value between 79 to 199,956 ")
   } else if (SubRegion.Length == -1) {

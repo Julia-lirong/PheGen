@@ -22,7 +22,6 @@
 #'    to variants, columns correspond to phenotypes. \code{noiseEffect():}
 #'    Matrix of noise term, rows correspond to sample, columns correspond to
 #'    phenotypes.
-#' @importFrom backports suppressWarnings
 #' @importFrom mvtnorm rmvnorm
 #' @export
 #'
@@ -55,7 +54,7 @@ geneticEffect <- function(M, K, W = NULL, V.g = NULL, method = "eigen") {
   V.g <- kronecker(V.g, W)
   beta <- suppressWarnings(mvtnorm::rmvnorm(n = 1, sigma = V.g, method = method))
   beta <- matrix(beta, ncol = K)
-  return(list(geneticEffect=beta))
+  return(beta)
 }
 
 
@@ -77,7 +76,7 @@ noiseEffect <- function(N, K, V.e = NULL, method = "eigen") {
     V.e = 0.5 * (V.e + t(V.e))
   }
   beta <- suppressWarnings(mvtnorm::rmvnorm(n = N, sigma = V.e, method = method))
-  return(list(noiseEffect = beta))
+  return(beta)
 }
 
 

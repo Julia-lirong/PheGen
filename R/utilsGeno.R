@@ -8,9 +8,10 @@
 #'   bi-allelic genetic variant/SNP encoded as 0,1 and 2.
 #' @return Vector with minor allele frequencies.
 #' @importFrom Hmisc impute
+#' @import stats
 #' @examples
-#' geno <- simulateGeno(N=10, NrSNP=100, frequency= c(0.3,0.5))$genotypes
-#' allelefreq <- getmaf(geno)
+#' #geno <- simulateGeno(N=10, NrSNP=100, frequency= c(0.3,0.5))$genotypes
+#' #allelefreq <- getmaf(geno)
 
 getmaf <- function(geno) {
   if (any(is.na(geno))) {
@@ -48,9 +49,10 @@ getmaf <- function(geno) {
 #' @references Yang, J., Lee, S.H., Goddard, M.E., Visscher, P.M. (2011) GCTA:
 #'   a tool for genome-wide complex trait analysis, AJHG: 88
 #' @importFrom Hmisc impute
+#' @import stats
 #' @examples
-#' geno <- simulateGeno(N=10, NrSNP=100, frequency= c(0.3,0.5))$genotypes
-#' geno_sd <- standardiseGeno(geno)
+#' #geno <- simulateGeno(N=10, NrSNP=100, frequency= c(0.3,0.5))$genotypes
+#' #geno_sd <- standardiseGeno(geno)
 standardiseGeno <- function(geno, impute = TRUE) {
   if (any(is.na(geno)) & !impute) {
     stop("Missing genotypes found and impute=FALSE, cannot standardise",
@@ -98,6 +100,7 @@ Delet_maf_hap <- function(Haplotype, SNPInfo) {
 
 # SNP.Dist: SNP.Location LIST,
 # SubRegion.Length: SubRegion.Length, correspongding to the position, then choose the varaince in the base pair
+#' @import stats
 Get_RandomRegion <- function(SNP.Dist, SubRegion.Length) {
   if (SubRegion.Length < 0) {
     return(1:length(SNP.Dist))
