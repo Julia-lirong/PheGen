@@ -54,15 +54,15 @@ PheSimulator <- function(K, N, NrSNP, Ns, genoMethod = "SNPfrequency",
   # Generate genotype
   if (genoMethod == "SNPfrequency") {
     if (Ns > 0) {
-      gene <- simulateGeno(N = Ns, NrSNP)$genotypes
+      gene <- simulateGeno(N = Ns, NrSNP, ...)$genotypes
       genes <- sapply(1:K, function(i) {
-        rbind(gene, simulateGeno(N = N[i] - Ns, NrSNP)$genotypes)
+        rbind(gene, simulateGeno(N = N[i] - Ns, NrSNP, ...)$genotypes)
       })
     }
   } else if (genoMethod == "Haplotype") {
-    gene <- simulateGeneHap(N = Ns, SubRegion.Length = 10)$genotypes
+    gene <- simulateGeneHap(N = Ns, SubRegion.Length = 10, ...)$genotypes
     genes <- sapply(1:K, function(i) {
-      rbind(gene, simulateGeneHap(N = N[i] - Ns, SubRegion.Length = 10)$genotypes)
+      rbind(gene, simulateGeneHap(N = N[i] - Ns, SubRegion.Length = 10, ...)$genotypes)
     })
   }
   

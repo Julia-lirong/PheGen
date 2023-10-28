@@ -267,3 +267,46 @@ testNumerics <- function(numbers, positives=NULL, integers=NULL,
     }
   }
 }
+
+
+
+
+
+#' Scale phenotype component.
+#'
+#' The function scales the specified component such that the average column 
+#' variance is equal to the user-specified proportion of variance. 
+#'
+#' @param component [N x P] Phenotype matrix [double] where [N] are the number 
+#' of samples and P the number of phenotypes 
+#' @param propvar Number [double] specifying the proportion of variance that 
+#' should be explained by this phenotype component
+#' @return If propvar != 0, a named list with the [N x P] matrix of the scaled 
+#' component (component) and its scale factor [double] (scale_factor) else 
+#' returns NULL
+#' @examples
+#' #x <- matrix(rnorm(100), nc=10)
+#' #x_scaled <- rescaleVariance(x, propvar=0.4)
+rescaleVariance <- function(component, propvar) {
+  if (!is.numeric(propvar)) {
+    stop("propvar needs to be numeric")
+  }
+  if (propvar < 0 || propvar > 1) {
+    stop("propvar cannot be less than 0 and or greater than 1")
+  }
+  if (!is.null(component) && !is.matrix(component)){
+    stop("component needs to be a matrix")
+  }
+  if (!is.null(component) && propvar != 0) {
+    var_component <- var(component)
+    mean_var <- mean(diag(var_component))
+    scale_factor <- sqrt(propvar/mean_var)
+    component_scaled <- component * scale_factor
+    colnames(component_scaled) <- colnames(component)
+    rownames(component_scaled) <- rownames(component)
+    return(list(component=component_scaled,
+                scale_factor=scale_factor))
+  } else {
+    return(NULL)
+  }
+}

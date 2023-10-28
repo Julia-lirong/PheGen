@@ -141,3 +141,5 @@ Get_Gene <- function(Haplotype, N, IDX.Marker) {
 
 
 
+
+

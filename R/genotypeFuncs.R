@@ -44,9 +44,16 @@ simulateGeno <- function(N, NrSNP = NULL,
   if (N > 0) {
     gene <- sapply(1:NrSNP, function(x) rbinom(N, 2, freq[x]))
     if (N == 1) gene <- as.data.frame(t(gene))
+    for (i in 1:ncol(gene)) {
+      if (sum(gene[,i])==0) {
+        ind <- sample(1:nrow(gene), 1, replace = FALSE)
+        gene[ind, i] <- 1
+      }
+    }
   } else {
     gene <- matrix(0, nrow = 0, ncol = NrSNP)
   }
+  
   if (is.standardise) {
     gene <- standardiseGeno(geno = gene, ...)
   }
@@ -81,6 +88,12 @@ simulateHap <- function(N, NrSNP,
   H1 <- sample(1:nrow(Hap), N, replace = TRUE)
   H2 <- sample(1:nrow(Hap), N, replace = TRUE)
   gene <- Hap[H1, IDX.Marker] + Hap[H2, IDX.Marker]
+  for (i in 1:ncol(gene)) {
+    if (sum(gene[,i])==0) {
+      ind <- sample(1:nrow(gene), 1, replace = FALSE)
+      gene[ind, i] <- 1
+    }
+  }
   freq = colMeans(gene)/2
   if (is.standardise) {
     gene <- standardiseGeno(geno = gene, ...)
@@ -129,6 +142,12 @@ simulateGeneHap <- function(N, Haplotype = NULL,
   gene_infor <- SNPInfo[IDX.Marker, ]
   M <- length(IDX.Marker)
   gene <- Get_Gene(Haplotype = Haplotype, N, IDX.Marker)
+  for (i in 1:ncol(gene)) {
+    if (sum(gene[,i])==0) {
+      ind <- sample(1:nrow(gene), 1, replace = FALSE)
+      gene[ind, i] <- 1
+    }
+  }
   if (is.standardise) {
     gene <- standardiseGeno(geno = gene, ...)
   }
