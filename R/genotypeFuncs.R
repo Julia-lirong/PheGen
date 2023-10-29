@@ -74,7 +74,7 @@ simulateGeno <- function(N, NrSNP = NULL,
 #' @export
 #'
 #' @examples
-#' gene <- simulateHap(N=100, NrSNP=20)
+#' gene <- simulateHap(N=10, NrSNP=20)
 
 simulateHap <- function(N, NrSNP,
                         Haplotype = NULL,
@@ -88,10 +88,17 @@ simulateHap <- function(N, NrSNP,
   H1 <- sample(1:nrow(Hap), N, replace = TRUE)
   H2 <- sample(1:nrow(Hap), N, replace = TRUE)
   gene <- Hap[H1, IDX.Marker] + Hap[H2, IDX.Marker]
-  for (i in 1:ncol(gene)) {
-    if (sum(gene[,i])==0) {
-      ind <- sample(1:nrow(gene), 1, replace = FALSE)
-      gene[ind, i] <- 1
+  hap_temp <- cbind(Hap[H1,IDX.Marker],Hap[H2,IDX.Marker])
+  if (N>0) {
+    hap_temp <- c()
+    for (i.c in 1:NrSNP) {
+      hap_temp <- cbind(hap_temp,cbind(Hap[H1,IDX.Marker[i.c]],Hap[H2,IDX.Marker[i.c]]))
+    }
+    for (i in 1:ncol(gene)) {
+      if (sum(gene[,i])==0) {
+        ind <- sample(1:nrow(gene), 1, replace = FALSE)
+        gene[ind, i] <- 1
+      }
     }
   }
   freq = colMeans(gene)/2
@@ -100,7 +107,7 @@ simulateHap <- function(N, NrSNP,
   }
   SNPInfo <- data.frame(SNP = c(1:NrSNP), FREQ1 = freq)
 
-  return(list(genotypes = gene, SNPInfo = SNPInfo))
+  return(list(genotypes = gene, SNPInfo = SNPInfo, Haplotype = hap_temp))
 
 }
 
@@ -142,10 +149,12 @@ simulateGeneHap <- function(N, Haplotype = NULL,
   gene_infor <- SNPInfo[IDX.Marker, ]
   M <- length(IDX.Marker)
   gene <- Get_Gene(Haplotype = Haplotype, N, IDX.Marker)
-  for (i in 1:ncol(gene)) {
-    if (sum(gene[,i])==0) {
-      ind <- sample(1:nrow(gene), 1, replace = FALSE)
-      gene[ind, i] <- 1
+  if (N>0) {
+    for (i in 1:ncol(gene)) {
+      if (sum(gene[,i])==0) {
+        ind <- sample(1:nrow(gene), 1, replace = FALSE)
+        gene[ind, i] <- 1
+      }
     }
   }
   if (is.standardise) {
@@ -154,5 +163,6 @@ simulateGeneHap <- function(N, Haplotype = NULL,
   return(list(genotypes = gene, SNPInfo = gene_infor))
 
 }
+
 
 

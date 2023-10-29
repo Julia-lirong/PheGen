@@ -12,7 +12,7 @@
 #' @param NrSNP Number [integer] of genetic variants to simulate.
 #' @param Ns The number of overlapped samples among these phenotypes.
 #' @param genoMethod Name of methods to generate Genotypes, which are "SNPfrequency",
-#'   or "Haplotype". Default is "SNPfrequency".
+#'   , "Haplotype" or "Region". Default is "SNPfrequency".
 #' @param SNPfrequency Vector of allele frequencies [double] from which to sample.
 #' @param cSNP Proportion [double] of causal SNPs; used as genetic variant effects.
 #'   default is 0.01.
@@ -40,7 +40,7 @@
 #' @examples
 #' K <- 5; N<- c(100,200,300,150,200); Ns<-100; NrSNP=1000
 #' h2s <- rep(0.6,K); pcorr <- 0.5
-#' out <- PheSimulator(K, N, NrSNP, Ns, pcorr=pcorr, h2s=h2s)
+#' out <- PheSimulator(K, N, NrSNP, Ns, pcorr=pcorr, h2s=h2s, genoMethod = "Haplotype")
 
 PheSimulator <- function(K, N, NrSNP, Ns, genoMethod = "SNPfrequency",
                          SNPfrequency = NULL, cSNP = 0.01, 
@@ -59,11 +59,23 @@ PheSimulator <- function(K, N, NrSNP, Ns, genoMethod = "SNPfrequency",
         rbind(gene, simulateGeno(N = N[i] - Ns, NrSNP, ...)$genotypes)
       })
     }
-  } else if (genoMethod == "Haplotype") {
+    Haps <- NULL
+  } else if (genoMethod == "Region") {
     gene <- simulateGeneHap(N = Ns, SubRegion.Length = 10, ...)$genotypes
     genes <- sapply(1:K, function(i) {
       rbind(gene, simulateGeneHap(N = N[i] - Ns, SubRegion.Length = 10, ...)$genotypes)
     })
+    Haps <- NULL
+  } else if (genoMethod == "Haplotype") {
+    temp <- simulateHap(N = Ns, NrSNP)
+    gene <- temp$genotypes
+    Haptemp <- temp$Haplotype
+    genes <- Haps <- vector(mode='list', length=K)
+    for (i in 1:K) {
+      temp <- simulateHap(N = N[i] - Ns, NrSNP)
+      genes[[i]] <- rbind(gene, temp$genotypes)
+      Haps[[i]] <- rbind(Haptemp, temp$Haplotype)
+    }
   }
   
   # generate effect size
@@ -99,7 +111,7 @@ PheSimulator <- function(K, N, NrSNP, Ns, genoMethod = "SNPfrequency",
     genes[[i]] %*% B[, i] + E[sample(1:Nmax, N[i], replace = FALSE), i]
   })
   
-  return(list(Genotype = genes, Phenotype = Y))
+  return(list(Genotype = genes, Phenotype = Y, Hap = Haps))
 }
 
 
