@@ -18,6 +18,7 @@ PheSimulator(
   theta = 0.8,
   weight = 1,
   Haplotype,
+  method = "eigen",
   ...
 )
 }
@@ -32,7 +33,7 @@ which means all phenotypes have same sample size.}
 \item{Ns}{The number of overlapped samples among these phenotypes.}
 
 \item{genoMethod}{Name of methods to generate Genotypes, which are "SNPfrequency",
-or "Haplotype". Default is "SNPfrequency".}
+, "Haplotype" or "Region". Default is "SNPfrequency".}
 
 \item{SNPfrequency}{Vector of allele frequencies [double] from which to sample.}
 
@@ -58,6 +59,12 @@ assigned to the variants. Default is 1.}
 \item{Haplotype}{Haplotype pool (two objects, first is the hoplotypes,
 second object is the SNP information)}
 
+\item{method}{String specifying the matrix decomposition used to determine
+the matrix root of sigma. Possible methods are eigenvalue decomposition
+("eigen", default), singular value decomposition ("svd"), and
+Cholesky decomposition ("chol"). The Cholesky is typically fastest,
+not by much though.}
+
 \item{\dots}{Arguments passed to the internal function.}
 }
 \value{
@@ -73,5 +80,5 @@ GB the genetic variant effects, E is noise term.
 \examples{
 K <- 5; N<- c(100,200,300,150,200); Ns<-100; NrSNP=1000
 h2s <- rep(0.6,K); pcorr <- 0.5
-out <- PheSimulator(K, N, NrSNP, Ns, pcorr=pcorr, h2s=h2s)
+out <- PheSimulator(K, N, NrSNP, Ns, pcorr=pcorr, h2s=h2s, genoMethod = "Haplotype")
 }

@@ -68,6 +68,6 @@ Named list with [N x NrSNP] matrix of simulated genotypes
 \examples{
 data(frequencies)
 snp <- simulateGeno(N=10, NrSNP=10)
-gene <- simulateHap(N=100, NrSNP=20)
+gene <- simulateHap(N=10, NrSNP=20, is.standardise = TRUE)
 gene <- simulateGeneHap(N=100)
 }

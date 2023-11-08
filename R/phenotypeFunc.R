@@ -29,6 +29,11 @@
 #'   assigned to the variants. Default is 1.
 #' @param Haplotype Haplotype pool (two objects, first is the hoplotypes,
 #'   second object is the SNP information)
+#' @param method String specifying the matrix decomposition used to determine
+#'   the matrix root of sigma. Possible methods are eigenvalue decomposition
+#'   ("eigen", default), singular value decomposition ("svd"), and
+#'   Cholesky decomposition ("chol"). The Cholesky is typically fastest,
+#'   not by much though.
 #' @param \dots Arguments passed to the internal function.
 #'
 #' @return Named list of i) the final simulated phenotype components
@@ -42,10 +47,11 @@
 #' h2s <- rep(0.6,K); pcorr <- 0.5
 #' out <- PheSimulator(K, N, NrSNP, Ns, pcorr=pcorr, h2s=h2s, genoMethod = "Haplotype")
 
+
 PheSimulator <- function(K, N, NrSNP, Ns, genoMethod = "SNPfrequency",
-                         SNPfrequency = NULL, cSNP = 0.01, 
+                         SNPfrequency = NULL, cSNP = 0.02, 
                          pcorr = NULL, pgenVar = 0.6, h2s = NULL,
-                         theta = 0.8, weight = 1, Haplotype, ...) {
+                         theta = 0.8, weight = 1, Haplotype, method = "eigen", ...) {
   
   if (is.null(pcorr) | is.null(h2s)) {
     stop(paste("Phenotypic correlation or heritability is missing"))
@@ -54,29 +60,33 @@ PheSimulator <- function(K, N, NrSNP, Ns, genoMethod = "SNPfrequency",
   # Generate genotype
   if (genoMethod == "SNPfrequency") {
     if (Ns > 0) {
-      gene <- simulateGeno(N = Ns, NrSNP, ...)$genotypes
+      gene <- simulateGeno(N = Ns, NrSNP, is.standardise = FALSE, ...)$genotypes
       genes <- sapply(1:K, function(i) {
-        rbind(gene, simulateGeno(N = N[i] - Ns, NrSNP, ...)$genotypes)
+        rbind(gene, simulateGeno(N = N[i] - Ns, NrSNP, is.standardise = FALSE, ...)$genotypes)
       })
     }
     Haps <- NULL
   } else if (genoMethod == "Region") {
-    gene <- simulateGeneHap(N = Ns, SubRegion.Length = 10, ...)$genotypes
+    gene <- simulateGeneHap(N = Ns, SubRegion.Length = 10, is.standardise = FALSE, ...)$genotypes
     genes <- sapply(1:K, function(i) {
-      rbind(gene, simulateGeneHap(N = N[i] - Ns, SubRegion.Length = 10, ...)$genotypes)
+      rbind(gene, simulateGeneHap(N = N[i] - Ns, SubRegion.Length = 10, is.standardise = FALSE, ...)$genotypes)
     })
     Haps <- NULL
   } else if (genoMethod == "Haplotype") {
-    temp <- simulateHap(N = Ns, NrSNP)
+    temp <- simulateHap(N = Ns, NrSNP, is.standardise = FALSE, ...)
     gene <- temp$genotypes
     Haptemp <- temp$Haplotype
     genes <- Haps <- vector(mode='list', length=K)
     for (i in 1:K) {
-      temp <- simulateHap(N = N[i] - Ns, NrSNP)
+      temp <- simulateHap(N = N[i] - Ns, NrSNP, is.standardise = FALSE, ...)
       genes[[i]] <- rbind(gene, temp$genotypes)
       Haps[[i]] <- rbind(Haptemp, temp$Haplotype)
     }
   }
+  
+  gene_st <- lapply(1:K, function(i){
+    standardiseGeno(geno = genes[[i]])
+  })
   
   # generate effect size
   M <- ceiling(NrSNP * cSNP)
@@ -99,19 +109,22 @@ PheSimulator <- function(K, N, NrSNP, Ns, genoMethod = "SNPfrequency",
     pgenVar <- matrix(pgenVar, nrow = K, ncol = K)
   }
   V.g <- V.a * pgenVar/M
-  V.e <- V.a - V.g
+  diag(V.g) <- h2s/M
+  V.e <- V.a - V.g*M
   
   B <- matrix(0, nrow = NrSNP, ncol = K)
-  B[id.causal, ] <- geneticEffect(M, K, W, V.g, ...)
+  B[id.causal, ] <- geneticEffect(M, K, W, V.g, method)
   
   Nmax <- max(N)
-  E <- noiseEffect(Nmax, K, V.e, ...)
+  E <- noiseEffect(Nmax, K, V.e, method)
   
-  Y <- sapply(1:K, function(i) {
-    genes[[i]] %*% B[, i] + E[sample(1:Nmax, N[i], replace = FALSE), i]
+  Y <- lapply(1:K, function(i) {
+    gene_st[[i]] %*% B[, i] + E[1:N[i], i]
   })
-  
-  return(list(Genotype = genes, Phenotype = Y, Hap = Haps))
+  Y <- sapply(1:K, function(i){
+    scale(Y[[i]])
+  })
+  return(list(Genotype = genes, Phenotype = Y))
 }
 
 

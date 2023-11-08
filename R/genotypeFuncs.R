@@ -74,7 +74,7 @@ simulateGeno <- function(N, NrSNP = NULL,
 #' @export
 #'
 #' @examples
-#' gene <- simulateHap(N=10, NrSNP=20)
+#' gene <- simulateHap(N=10, NrSNP=20, is.standardise = TRUE)
 
 simulateHap <- function(N, NrSNP,
                         Haplotype = NULL,

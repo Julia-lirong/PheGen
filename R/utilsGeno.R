@@ -59,17 +59,19 @@ standardiseGeno <- function(geno, impute = TRUE) {
          "genotypes; remove missing genotypes or set impute=TRUE for mean",
          "imputation of genotypes")
   }
-  if (any(is.na(geno)) & impute) {
-    geno <- round(apply(as.matrix(geno), 2, impute, fun = mean))
-  }
-  p <- getmaf(geno)
-  geno <- sapply(1:ncol(geno), function(i) {
-    if (p[i] != 0) {
-      (geno[, i] - 2 * p[i])/sqrt(2 * p[i] * (1 - p[i]))
-    } else {
-      geno[, i]
+  if (nrow(geno) != 0) {
+    if (any(is.na(geno)) & impute) {
+      geno <- round(apply(as.matrix(geno), 2, impute, fun = mean))
     }
-  })
+    p <- getmaf(geno)
+    geno <- sapply(1:ncol(geno), function(i) {
+      if (p[i] != 0 & !is.na(p[i])) {
+        (geno[, i] - 2 * p[i])/sqrt(2 * p[i] * (1 - p[i]))
+      } else {
+        geno[, i]
+      }
+    })
+  }
 
   return(geno)
 }
