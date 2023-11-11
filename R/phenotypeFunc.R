@@ -124,7 +124,7 @@ PheSimulator <- function(K, N, NrSNP, Ns, genoMethod = "SNPfrequency",
   Y <- sapply(1:K, function(i){
     scale(Y[[i]])
   })
-  return(list(Genotype = genes, Phenotype = Y))
+  return(list(Genotype = genes, Phenotype = Y, Hap = Haps))
 }
 
 
