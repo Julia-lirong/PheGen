@@ -11,7 +11,7 @@ PheSimulator(
   Ns,
   genoMethod = "SNPfrequency",
   SNPfrequency = NULL,
-  cSNP = 0.01,
+  cSNP = 0.02,
   pcorr = NULL,
   pgenVar = 0.6,
   h2s = NULL,

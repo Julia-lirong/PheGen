@@ -2,6 +2,7 @@
 
 export(GWASfunc)
 export(PheSimulator)
+export(downloadGenome1000)
 export(geneticEffect)
 export(noiseEffect)
 export(simulateGeneHap)

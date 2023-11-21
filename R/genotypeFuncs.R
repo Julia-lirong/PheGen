@@ -166,3 +166,49 @@ simulateGeneHap <- function(N, Haplotype = NULL,
 
 
 
+
+## adjusted the function from sim1000G pacakge
+#' Download vcf file from 1000 genome project phase 3
+#' @rdname GenotypeSimulate
+#' @param chromosome Chromosome number to download
+#' @param dir Directory to save the downloaded data (default: temporary directory)
+#' @references The original 1000 genomes VCF files are obtained from 1000 genomes ftp site, 
+#'   at the location:http://hgdownload.cse.ucsc.edu/gbdb/hg19/1000Genomes/phase3/
+#' @importFrom curl curl_download
+#' @export
+#' @example 
+#' 
+#' #data <- downloadGenome1000(chromosome=4)
+
+downloadGenome1000 <- function(chromosome, dir = NA) {
+  fname <- sprintf("ALL.chr%s.phase3_shapeit2_mvncall_integrated_v5a.20130502.genotypes.vcf.gz",
+                   chromosome)
+  url <- sprintf("http://hgdownload.cse.ucsc.edu/gbdb/hg19/1000Genomes/phase3/ALL.chr%s.phase3_shapeit2_mvncall_integrated_v5a.20130502.genotypes.vcf.gz",
+                 chromosome)
+  if (is.na(dir)) {
+    dest_dir <- tempdir()
+    if (!dir.exists(dest_dir))
+      dest_dir <- tempdir()
+  } else {
+    dest_dir <- dir
+  }
+  
+  dest_path <- file.path(dest_dir, fname)
+  # # need to set timeout if file is large download.file(url,
+  # destfile = dest_path, quiet = TRUE, timeout = max(300,
+  # getOption('timeout')))
+  
+  cat(" -> Downloading genotypes from:", url, "\n")
+  cat(" -> Saving genotypes to:", dest_path, "\n")
+  curl::curl_download(url, destfile = dest_path, quiet = TRUE)
+}
+
+
+
+
+
+
+
+
+
+

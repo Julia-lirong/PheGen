@@ -4,6 +4,7 @@
 \alias{simulateGeno}
 \alias{simulateHap}
 \alias{simulateGeneHap}
+\alias{downloadGenome1000}
 \title{Simulate genotypes based on predefined frequencies}
 \usage{
 simulateGeno(
@@ -26,6 +27,8 @@ simulateGeneHap(
   is.standardise = FALSE,
   ...
 )
+
+downloadGenome1000(chromosome, dir = NA)
 }
 \arguments{
 \item{N}{Number of samples for which to simulate bi-allelic genotypes.}
@@ -56,6 +59,10 @@ If SubRegion.Length=-1 (default), the length of the subregion
 will be the same as the length of the whole region, so there will
 no random selection of subregions. This parameter is used in the gene-based
 assocaition.}
+
+\item{chromosome}{Chromosome number to download}
+
+\item{dir}{Directory to save the downloaded data (default: temporary directory)}
 }
 \value{
 Named list with [N x NrSNP] matrix of simulated genotypes
@@ -70,4 +77,8 @@ data(frequencies)
 snp <- simulateGeno(N=10, NrSNP=10)
 gene <- simulateHap(N=10, NrSNP=20, is.standardise = TRUE)
 gene <- simulateGeneHap(N=100)
+}
+\references{
+The original 1000 genomes VCF files are obtained from 1000 genomes ftp site, 
+  at the location:http://hgdownload.cse.ucsc.edu/gbdb/hg19/1000Genomes/phase3/
 }
