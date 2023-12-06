@@ -50,7 +50,7 @@
 
 PheSimulator <- function(K, N, NrSNP, Ns, genoMethod = "SNPfrequency",
                          SNPfrequency = NULL, cSNP = 0.02, 
-                         pcorr = NULL, pgenVar = 0.6, h2s = NULL,
+                         pcorr = 0.5, pgenVar = 0.6, h2s = NULL,
                          theta = 0.8, weight = 1, Haplotype, method = "eigen", ...) {
   
   if (is.null(pcorr) | is.null(h2s)) {
@@ -100,10 +100,14 @@ PheSimulator <- function(K, N, NrSNP, Ns, genoMethod = "SNPfrequency",
   if (length(pcorr) == 1) {
     V.a <- matrix(0, nrow = K, ncol = K)
     upper_tri <- upper.tri(V.a, diag = FALSE)
-    V.a[upper_tri] <- cumprod(rep(pcorr, K * (K - 1)/2))
-    # V.a[upper_tri] <- rep(pcorr, K* (K - 1)/2)
+    # V.a[upper_tri] <- cumprod(rep(pcorr, K * (K - 1)/2))
+    V.a[upper_tri] <- rep(pcorr, K* (K - 1)/2)
     V.a <- V.a + t(V.a)
     diag(V.a) <- 1
+  } else if (dim(pcorr)[1]!=K){
+    stop(paste("The dimention of phenotype correlation matrix is incorrect!"))
+  } else{
+    V.a <- pcorr
   }
   if (length(pgenVar) == 1) {
     pgenVar <- matrix(pgenVar, nrow = K, ncol = K)
